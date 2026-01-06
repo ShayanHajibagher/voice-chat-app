@@ -29,7 +29,7 @@ Features:
 - Keyboard shortcuts for control
 
 guide: 
--the best low end model for english is gemma 3 ib but not so good for persian / for persian i recommend gemma 3n e4b.
+-the best low end model for english is gemma 3 1b but not so good for persian / for persian i recommend gemma 3n e4b.
 -it not open source now but if this project get good reviews and support i will make it open source for eveyone.
 
 For more information, check the README.md inside the cyan.diamond.studio-voice-chat folder.
