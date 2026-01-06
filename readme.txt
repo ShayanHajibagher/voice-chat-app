@@ -25,7 +25,7 @@ Features:
 - im not a coder so dont expect to high of this project but i do my best to make it better and i listen to the comments.
 - Multi-language support (English, Persian)
 - Conversation memory
-- Web UI option (run with --web flag)
+- Web UI option (not complete so its not working for now)
 - Keyboard shortcuts for control
 
 guide: 
