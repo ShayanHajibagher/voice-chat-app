@@ -35,6 +35,6 @@ guide:
 For more information, check the README.md inside the cyan.diamond.studio-voice-chat folder.
 
 IMPORTANT: This software is licensed exclusively for Cyan Diamond Studio production use. Please review the LICENSE.md file for terms and conditions.
-IMPORTANT2: this a project that im still working on if you want to support me and this project so i cuntinue it you can buy me a coffe (https://www.coffeebede.com/shayan_hajibagher).
+IMPORTANT2: this a project that im still working on if you want to support me and this project so i cuntinue it you can buy me a coffee (https://www.coffeebede.com/shayan_hajibagher).
 
 ========================================
