@@ -150,10 +150,14 @@ cli.bat
 
 <div align="center">
 
-[![Buy Me A Coffee]                                                              
-(
-<a href="https://www.coffeebede.com/shayan_hajibagher"><img class="img-fluid" src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" /></a>
-)
+[![Buy Me A Coffee]  
+
+<div align="center">
+
+(<a href="https://www.coffeebede.com/shayan_hajibagher"><img class="img-fluid" src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" /></a>)
+
+<div align="center">
+  
 (https://www.coffeebede.com/shayan_hajibagher)
 
 </div>
