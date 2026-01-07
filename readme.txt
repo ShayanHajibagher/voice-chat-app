@@ -9,6 +9,10 @@ Prerequisites:
 - Python 3.8+ installed
 - Internet connection for downloading models
 
+system requirements:
+- some ram to run a local model like 16GB , the more the better (the ram usage depend on the model you use in the LM studio).
+- the speed of the response is up to your system CPU and ram.
+
 Setup Steps:
 
 1. Double-click "setup.bat" to install all required dependencies and download necessary models.
@@ -38,3 +42,4 @@ IMPORTANT: This software is licensed exclusively for Cyan Diamond Studio product
 IMPORTANT2: this a project that im still working on if you want to support me and this project so i cuntinue it you can buy me a coffee (https://www.coffeebede.com/shayan_hajibagher).
 
 ========================================
+
