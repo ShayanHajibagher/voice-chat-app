@@ -2,12 +2,16 @@ Cyan Diamond Studio - AI Voice Chat - Setup Instructions
 
 ========================================
 
-Welcome to Cyan Diamond Studio's AI Voice Chat! This proprietary application allows authorized team members to have voice conversations with AI using speech recognition and text-to-speech.
+Welcome to Cyan Diamond Studio's AI Voice Chat! This proprietary application allows everyone to have voice conversations with AI using speech recognition and text-to-speech.
 
 Prerequisites:
 - Windows OS
 - Python 3.8+ installed
 - Internet connection for downloading models
+
+system requirements:
+- some ram to run a local model like 16GB , the more the better (the ram usage depend on the model you use in the LM studio).
+- the speed of the response is up to your system CPU and ram.
 
 Setup Steps:
 
@@ -35,5 +39,7 @@ guide:
 For more information, check the README.md inside the cyan.diamond.studio-voice-chat folder.
 
 IMPORTANT: This software is licensed exclusively for Cyan Diamond Studio production use. Please review the LICENSE.md file for terms and conditions.
+IMPORTANT2: this a project that im still working on if you want to support me and this project so i cuntinue it you can buy me a coffee (https://www.coffeebede.com/shayan_hajibagher).
 
 ========================================
+
