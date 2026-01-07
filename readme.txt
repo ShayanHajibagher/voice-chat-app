@@ -2,7 +2,7 @@ Cyan Diamond Studio - AI Voice Chat - Setup Instructions
 
 ========================================
 
-Welcome to Cyan Diamond Studio's AI Voice Chat! This proprietary application allows authorized team members to have voice conversations with AI using speech recognition and text-to-speech.
+Welcome to Cyan Diamond Studio's AI Voice Chat! This proprietary application allows everyone to have voice conversations with AI using speech recognition and text-to-speech.
 
 Prerequisites:
 - Windows OS
@@ -35,5 +35,6 @@ guide:
 For more information, check the README.md inside the cyan.diamond.studio-voice-chat folder.
 
 IMPORTANT: This software is licensed exclusively for Cyan Diamond Studio production use. Please review the LICENSE.md file for terms and conditions.
+IMPORTANT2: this a project that im still working on if you want to support me and this project so i cuntinue it you can buy me a coffe (https://www.coffeebede.com/shayan_hajibagher).
 
 ========================================
