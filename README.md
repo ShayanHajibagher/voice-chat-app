@@ -144,8 +144,6 @@ cli.bat
 
 ---
 
-## 🤝 Contributing
-
 <div align="center">
 
 ### 💖 Support This Project
