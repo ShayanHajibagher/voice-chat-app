@@ -203,9 +203,9 @@ Please review [`LICENSE.md`](LICENSE.md) for detailed terms and conditions.
 
 | Version | Planned Features |
 |---------|------------------|
-| v1.1 | 🎨 Web UI Completion |
-| v1.2 | 🌐 macOS/Linux Support |
-| v2.0 | 🔓 Open Source Release |
+| v5.1 | 🎨 Web UI Completion |
+| v5.2 | 🌐 macOS/Linux Support |
+| v6.0 | 🔓 Open Source Release |
 
 </div>
 
