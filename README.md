@@ -97,12 +97,12 @@ cli.bat
 
 #### 🇬🇧 English (Low-End Systems)
 ```
-✨ Gemma 3 1B - Fast and efficient
+✨ Gemma 3 1B/Gemma 4 E2B - Fast and efficient
 ```
 
 #### 🇮🇷 Persian (Low-End Systems)
 ```
-✨ Gemma 3N E4B - Optimized for Persian
+✨ Gemma 4 E2B - Optimized for Persian
 ```
 
 > 💡 **Tip:** RAM usage depends on the model size. Smaller models = less memory = faster responses!
