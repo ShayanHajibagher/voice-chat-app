@@ -1,0 +1,31 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Python cache
+src/__pycache__/
+src/*.py[cod]
+src/*.pyc
+src/*$py.class
+src/*.so
+
+# Model binaries (downloaded by user via download_model.py)
+src/*.onnx
+src/*.onnx.json
+src/vosk-model-*/
+
+# User data
+src/conversation*.json
+src/user_settings.json
+
+# Logs
+src/*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp
+src/*.tmp
+src/temp/

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">&#x25C7;</span>
+                    <span class="logo-text">Voice AI</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-view="chat" onclick="switchView('chat')">
+                    <span class="nav-icon">&#x1F4AC;</span>
+                    <span class="nav-label">Chat</span>
+                </button>
+                <button class="nav-btn" data-view="settings" onclick="switchView('settings')">
+                    <span class="nav-icon">&#x2699;</span>
+                    <span class="nav-label">Settings</span>
+                </button>
+                <button class="nav-btn" data-view="stats" onclick="switchView('stats')">
+                    <span class="nav-icon">&#x1F4CA;</span>
+                    <span class="nav-label">Stats</span>
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="connection-status" id="connection-status">
+                    <span class="dot" id="status-dot"></span>
+                    <span id="status-text">Connecting...</span>
+                </div>
+                <div class="backend-badge" id="backend-badge">whisper</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Chat View -->
+            <div class="view active" id="view-chat">
+                <header class="chat-header">
+                    <h2>Conversation</h2>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="copyLastResponse()" title="Copy last AI response">
+                            &#x1F4CB;
+                        </button>
+                        <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+                            <span id="theme-icon">&#x1F319;</span>
+                        </button>
+                        <div class="dropdown">
+                            <button class="icon-btn dropdown-btn" title="Export">&#x1F4E4;</button>
+                            <div class="dropdown-menu">
+                                <button onclick="exportJSON()">Export as JSON</button>
+                                <button onclick="exportText()">Export as Text</button>
+                                <button onclick="saveConversation()">Save to Server</button>
+                            </div>
+                        </div>
+                        <button class="icon-btn" onclick="clearConversation()" title="Clear conversation">
+                            &#x1F5D1;
+                        </button>
+                    </div>
+                </header>
+                <div class="messages" id="messages">
+                    <div class="empty-state">
+                        <div class="empty-icon">&#x1F3A4;</div>
+                        <h3>Ready to talk</h3>
+                        <p>Press the mic button and start speaking</p>
+                    </div>
+                </div>
+                <div class="input-area">
+                    <div class="waveform-container" id="waveform-container" style="display:none">
+                        <canvas id="waveform" width="400" height="60"></canvas>
+                    </div>
+                    <div class="input-controls">
+                        <button class="mic-btn" id="record-btn" onclick="toggleRecording()">
+                            <span class="mic-icon">&#x1F3A4;</span>
+                        </button>
+                        <span class="hint">Press Space or click to speak</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings View -->
+            <div class="view" id="view-settings">
+                <header class="chat-header">
+                    <h2>Settings</h2>
+                </header>
+                <div class="settings-content">
+                    <div class="setting-group">
+                        <h3>AI Backend</h3>
+                        <div class="setting-row">
+                            <label>API URL</label>
+                            <input type="text" id="api-url" class="setting-input" placeholder="http://localhost:1234/v1/chat/completions" onchange="setApiUrl(this.value)">
+                        </div>
+                        <div class="setting-row">
+                            <label>API Key</label>
+                            <input type="password" id="api-key" class="setting-input" placeholder="Optional" onchange="setApiKey(this.value)">
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>Speech Recognition (STT)</h3>
+                        <div class="setting-row">
+                            <label>Backend</label>
+                            <select id="stt-backend" class="setting-select" onchange="setSttBackend(this.value)">
+                                <option value="whisper">faster-whisper (recommended)</option>
+                                <option value="vosk">Vosk (lightweight)</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <label>Model</label>
+                            <select id="whisper-model" class="setting-select" onchange="setWhisperModel(this.value)">
+                                <option value="turbo">turbo (~800MB) [recommended]</option>
+                                <option value="large-v3">large-v3 (~3GB) - best accuracy</option>
+                                <option value="medium">medium (~1.5GB)</option>
+                                <option value="small">small (~500MB)</option>
+                                <option value="base">base (~150MB)</option>
+                                <option value="tiny">tiny (~75MB) - fastest</option>
+                            </select>
+                        </div>
+                        <div class="setting-info">
+                            <p class="setting-desc">Changes to STT backend or model require a restart.</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>Language</h3>
+                        <div class="setting-row">
+                            <label>Voice Language</label>
+                            <select id="language-select" class="setting-select" onchange="changeLanguage(this.value)">
+                                <option value="en">English</option>
+                                <option value="fa">Persian (Farsi)</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <label>Volume</label>
+                            <input type="range" id="volume-slider" min="0.1" max="2.0" step="0.1" value="1.1" oninput="changeVolume(this.value)">
+                            <span class="setting-value" id="volume-value">1.1</span>
+                        </div>
+                        <div class="setting-row">
+                            <label>Speed</label>
+                            <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.05" value="1.0" oninput="changeSpeed(this.value)">
+                            <span class="setting-value" id="speed-value">1.00</span>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>TTS Voice</h3>
+                        <div class="setting-row">
+                            <label>English</label>
+                            <select id="tts-voice-en" class="setting-select" onchange="setTtsVoice('en', this.value)">
+                                <option value="en_US-lessac-high">lessac-high (best)</option>
+                                <option value="en_US-amy-medium">amy-medium</option>
+                                <option value="en_US-ryan-high">ryan-high</option>
+                            </select>
+                        </div>
+                        <div class="setting-row">
+                            <label>Persian</label>
+                            <select id="tts-voice-fa" class="setting-select" onchange="setTtsVoice('fa', this.value)">
+                                <option value="fa_IR-mana-medium">mana-medium (best)</option>
+                                <option value="fa_IR-amir-medium">amir-medium</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>Models</h3>
+                        <button class="setting-btn full" onclick="downloadModels()">&#x1F4E5; Download / Update Models</button>
+                        <div class="setting-info">
+                            <p class="setting-desc">Opens a separate window to download or update speech and TTS models.</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>Appearance</h3>
+                        <button class="setting-btn full" onclick="toggleTheme()">
+                            <span id="theme-label">Switch to Light Mode</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats View -->
+            <div class="view" id="view-stats">
+                <header class="chat-header">
+                    <h2>Session Stats</h2>
+                </header>
+                <div class="stats-content">
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-user-msgs">0</div>
+                        <div class="stat-label">Your Messages</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-ai-msgs">0</div>
+                        <div class="stat-label">AI Responses</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-words">0</div>
+                        <div class="stat-label">Words Spoken</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="stat-time">00:00</div>
+                        <div class="stat-label">Session Time</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

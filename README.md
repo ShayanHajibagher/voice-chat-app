@@ -1,239 +1,249 @@
-# 🎙️ Cyan Diamond Studio - AI Voice Chat
+# AI Voice Chat v6
 
-![Voice Chat Banner](https://capsule-render.vercel.app/api?type=waving&color=00FFFF&height=200&section=header&text=Cyan+Diamond+Studio&fontSize=60&animation=fadeIn&fontAlignY=35)
-
-<div align="center">
-
-### ✨ AI-Powered Voice Conversations ✨
+**Fully offline voice assistant with web UI, powered by faster-whisper and Piper TTS.**
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue?logo=python)
 ![Windows](https://img.shields.io/badge/Windows-0078D4?logo=windows)
 ![License](https://img.shields.io/badge/License-Proprietary-red)
 
-**Transform your voice into intelligent conversations with AI** 🗣️🤖
-
-</div>
-
 ---
 
-## 🚀 About The Project
+## Overview
 
-<div align="center">
+AI Voice Chat lets you have natural voice conversations with a local AI model. Speak into your microphone, get transcribed by **faster-whisper**, processed by an **OpenAI-compatible API** (LM Studio, Ollama, etc.), and hear the response spoken aloud via **Piper TTS** — all running locally on your machine.
 
-![Demo Preview](https://via.placeholder.com/600x300/00FFFF/000000?text=AI+Voice+Chat+Demo+Coming+Soon)
-
-</div>
-
-> 💎 **Cyan Diamond Studio's AI Voice Chat** is a revolutionary application that enables seamless voice conversations with artificial intelligence. Using advanced speech recognition and text-to-speech technologies, you can now talk to AI naturally - just like speaking with a friend!
-
-### 🌟 Key Features
+### Key Features
 
 | Feature | Description |
 |---------|-------------|
-| 🎤 **Voice Input** | Speak naturally and have your words converted to text |
-| 🔊 **Natural Speech** | AI responses delivered with human-like voice synthesis |
-| 🧠 **Smart Memory** | Conversation context remembered for coherent dialogues |
-| 🌍 **Multi-Language** | Support for English and Persian languages |
-| ⚡ **Local AI** | Run models locally for privacy and speed |
-| 🎯 **Low Resource** | Optimized for various system configurations |
+| Web UI | Modern interface with chat, settings, stats panels. Dark/light theme. |
+| Dual STT | faster-whisper (default, best accuracy) with automatic Vosk fallback. |
+| Piper TTS | High-quality neural text-to-speech. lessac-high for English, mana-medium for Persian. |
+| Multi-language | English and Persian/Farsi with seamless switching. |
+| Settings panel | Change STT backend, Whisper model, TTS voice, API URL/key, volume, speed from the browser. |
+| Conversation export | Download as JSON or plain text. |
+| Session stats | Track messages, words spoken, session time. |
+| .venv isolation | All dependencies in a virtual environment — no system pollution. |
+| Fully offline | After initial model download, everything runs locally with no internet required. |
 
 ---
 
-## 🛠️ Prerequisites
+## Quick Start
 
-```bash
-✅ Windows Operating System
-✅ Python 3.8 or higher
-🌐 Internet connection (for initial model downloads only)
-💾 16GB+ RAM recommended (more = better performance)
-```
+### 1. Install
 
----
-
-## ⚡ Quick Start
-
-### 1️⃣ Installation
+Double-click **`install.bat`** (in the `production/` folder):
 
 ```batch
-:: Simply double-click setup.bat or run:
-setup.bat
+cd production
+install.bat
 ```
 
-This will automatically:
-- 📦 Install all required Python packages
-- 📥 Download speech recognition models (Vosk)
-- 🔈 Download text-to-speech models (Piper)
+This will:
+- Create a `.venv` virtual environment inside `production/`
+- Install Python dependencies (`faster-whisper`, `piper-tts`, `flask`, `flask-socketio`, `vosk`, `pyaudio`, etc.)
+- Launch the interactive model downloader to choose your STT and TTS models
 
-### 2️⃣ Start Local AI (Optional)
+### 2. Start
 
-> 💡 Skip this step to use cloud AI services
+Double-click **`start.bat`** (in the `production/` folder):
 
 ```batch
-:: Start LM Studio server
-:: Ensure it's running on localhost:1234
+cd production
+start.bat
 ```
 
-### 3️⃣ Launch Application
+This will:
+- Activate the virtual environment
+- Start the web server on `http://localhost:5000`
+- Open your browser automatically
+
+### 3. Speak
+
+Press the microphone button (or press **Space**) and start talking. The AI will respond with text and speech.
+
+---
+
+## Manual Installation
+
+If you prefer to install manually:
 
 ```batch
-:: Double-click cli.bat or run:
-cli.bat
+cd production
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r src\requirements.txt
+cd src
+python download_model.py
+python cli.py
+```
+
+To start in terminal/CLI mode instead of web UI:
+
+```batch
+cd src
+python cli.py --cli
 ```
 
 ---
 
-## 🎮 Usage Guide
+## Screenshots
 
-### ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `P` | Stop talking |
-| `Q` | Exit application |
-| `R` | resume talking |
-| `F/E` | change language |
-
-### 📋 Recommended Models
-
-#### 🇬🇧 English (Low-End Systems)
-```
-✨ Gemma 3 1B/Gemma 4 E2B - Fast and efficient
-```
-
-#### 🇮🇷 Persian (Low-End Systems)
-```
-✨ Gemma 4 E2B - Optimized for Persian
-```
-
-> 💡 **Tip:** RAM usage depends on the model size. Smaller models = less memory = faster responses!
+> *(Add screenshots here — the chat view, settings panel, and stats view)*
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│         🎙️ Voice Input                 │
-│              ↓                         │
-│      🧠 Speech Recognition             │
-│         (Vosk Model)                   │
-│              ↓                         │
-│      📝 Text Processing                │
-│              ↓                         │
-│      🤖 Local/Cloud AI                 │
-│    (LM Studio / API)                   │
-│              ↓                         │
-│      🔊 Text-to-Speech                 │
-│       (Piper Model)                    │
-│              ↓                         │
-│         🎧 Audio Output                │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│                   Browser (Web UI)                   │
+│  ┌──────────┐   ┌──────────┐   ┌────────────────┐   │
+│  │  Chat     │   │ Settings  │   │   Stats        │   │
+│  │  View     │   │  Panel    │   │   Dashboard    │   │
+│  └─────┬─────┘   └──────────┘   └────────────────┘   │
+│        │                                              │
+│  ┌─────▼──────────────────────────────────────────┐   │
+│  │  MediaRecorder → decodeAudioData → encodeWAV    │   │
+│  │  (WebM → PCM → 16kHz WAV)                      │   │
+│  └─────┬──────────────────────────────────────────┘   │
+└────────┼──────────────────────────────────────────────┘
+         │ SocketIO (WebSocket)
+┌────────▼──────────────────────────────────────────────┐
+│                   Python Server                        │
+│  ┌──────────┐    ┌──────────────┐   ┌──────────────┐  │
+│  │ flask      │    │  flask-       │   │  VoiceChat    │  │
+│  │ +          │    │  socketio    │   │  Core         │  │
+│  │ WebServer  │    │  Events      │   │              │  │
+│  └──────────┘    └──────┬───────┘   └──────┬───────┘  │
+│                         │                   │          │
+│                    ┌────▼───────────────────▼──────┐   │
+│                    │  process_audio_message()       │   │
+│                    │  ┌──────────┐ ┌────────────┐  │   │
+│                    │  │whisper/  │ │  Piper TTS │  │   │
+│                    │  │Vosk STT  │ │  Synthesis │  │   │
+│                    │  └────┬─────┘ └────▲───────┘  │   │
+│                    │       │            │          │   │
+│                    │  ┌────▼────────────┘          │   │
+│                    │  │  chat_with_ai()            │   │
+│                    │  │  (HTTP to LM Studio / API) │   │
+│                    │  └─────────────────────────── │   │
+│                    └───────────────────────────────┘   │
+└────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📂 Project Structure
+## Configuration
+
+Settings are stored in `src/config.json`:
+
+```json
+{
+  "language": "en",
+  "stt_backend": "whisper",
+  "whisper_model": "turbo",
+  "languages": {
+    "en": {
+      "vosk_model_path": "vosk-model-small-en-us-0.15",
+      "model_path": "en_US-lessac-high.onnx",
+      "config_path": "en_US-lessac-high.onnx.json"
+    },
+    "fa": {
+      "vosk_model_path": "vosk-model-small-fa-rhasspy-0.15",
+      "model_path": "fa_IR-mana-medium.onnx",
+      "config_path": "fa_IR-mana-medium.onnx.json"
+    }
+  },
+  "api_url": "http://localhost:1234/v1/chat/completions",
+  "api_key": "",
+  "api_timeout": 120,
+  "max_retries": 3,
+  "sample_rate": 16000,
+  "chunk_size": 8192,
+  "max_tokens": 1500,
+  "temperature": 0.7,
+  "synth": {
+    "volume": 1.1,
+    "length_scale": 1.05,
+    "noise_scale": 0.4,
+    "noise_w_scale": 0.5,
+    "normalize_audio": true
+  }
+}
+```
+
+| Key | Description |
+|-----|-------------|
+| `stt_backend` | `"whisper"` or `"vosk"`. Whisper recommended for best accuracy. |
+| `whisper_model` | `"turbo"` (default), `"large-v3"`, `"medium"`, `"small"`, `"base"`, `"tiny"` |
+| `api_url` | OpenAI-compatible endpoint (e.g. LM Studio at `http://localhost:1234/v1/chat/completions`) |
+| `api_key` | Optional Bearer token for authenticated endpoints |
+| `language` | Default language: `"en"` or `"fa"` |
+| `synth` | TTS parameters — volume, speed, noise scales |
+
+You can also change most settings from the Web UI's **Settings** panel.
+
+---
+
+## Project Structure
 
 ```
-📦 cyan-diamond-studio-voice-chat
-├── 📄 setup.bat          # Installation script
-├── 📄 cli.bat            # Application launcher
-├── 📁 voice_chat_complete/            # AI models storage an app
-└── 📄 README.md          # This file
+production/
+├── install.bat              # One-click installer
+├── start.bat                # One-click launcher
+├── .gitignore
+├── README.md                # This file
+└── src/                     # Source code
+    ├── cli.py               # Entry point (web UI by default, --cli for terminal)
+    ├── voice_chat.py         # Core: Whisper+Vosk STT, Piper TTS, AI chat loop
+    ├── web_server.py         # Flask + SocketIO server
+    ├── download_model.py     # Interactive model downloader
+    ├── animations.py         # CLI animations and colors
+    ├── window_focus.py       # Window monitoring utility
+    ├── config.json           # Configuration file
+    ├── requirements.txt      # Python dependencies
+    ├── LICENSE.md            # License agreement
+    ├── .gitignore
+    ├── static/
+    │   ├── style.css         # Dark/light themed CSS
+    │   └── script.js         # SocketIO client, audio recording, waveform
+    └── templates/
+        └── index.html        # Web UI (chat, settings, stats)
 ```
 
 ---
 
-<div align="center">
+## Keyboard Shortcuts
 
-### 💖 Support This Project
-
-<div align="center">
-
-[Buy Me A Coffee]  
-
-<div align="center">
-
-<a href="https://www.coffeebede.com/shayan_hajibagher"><img class="img-fluid" src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" /></a>
-
-<div align="center">
-  
-(https://www.coffeebede.com/shayan_hajibagher)
-
-</div>
-
-> 🌱 This project is under active development! Your support helps me continue improving and eventually open-source this project.
-
-### 📣 Stay Connected
-
-<div align="center">
-
-[![Follow Updates](https://img.shields.io/badge/📢-Follow%20For%20Updates-blue)](gamil : shayan.contact.email@gmail.com)
-
-</div>
-
-</div>
+| Key | Action |
+|-----|--------|
+| Space | Toggle recording (when chat view is focused) |
+| Click mic button | Record audio |
 
 ---
 
-## 📜 License
+## Dependencies
 
-<div align="center">
-
-> ⚖️ **IMPORTANT:** This software is licensed exclusively for **Cyan Diamond Studio** production use.
-
-Please review [`LICENSE.md`](LICENSE.md) for detailed terms and conditions.
-
-</div>
-
----
-
-## 🐛 Known Issues & Limitations
-
-- 🔧 Web UI is currently under development
-- 🌐 Currently Windows-only (macOS/Linux planned)
-- 📦 First run requires internet for model downloads
-- ⚙️ Performance depends on your system specifications
+- **faster-whisper** — State-of-the-art speech recognition (CTranslate2 backend)
+- **piper-tts** — Fast neural text-to-speech
+- **vosk** — Lightweight offline speech recognition (fallback)
+- **Flask** + **Flask-SocketIO** — Web server and real-time communication
+- **pyaudio** — Audio capture and playback
+- **requests** — HTTP client for AI API calls
 
 ---
 
-## 🔮 Future Roadmap
+## License
 
-<div align="center">
+This project is licensed under a proprietary license by **Cyan Diamond Studio**. See `src/LICENSE.md` for full terms.
 
-| Version | Planned Features |
-|---------|------------------|
-| v5.1 | 🎨 Web UI Completion |
-| v5.2 | 🌐 macOS/Linux Support |
-| v6.0 | 🔓 Open Source Release |
-
-</div>
+Powered by Cyan Diamond Studio — AI Voice Chat
 
 ---
 
-## 📞 Contact & Support
+## Contact
 
-<div align="center">
-
-### 🏢 Cyan Diamond Studio
-
-**Developer:** Shayan Hajibagher
-
-📧 **Email:** shayan.contact.email@gmail.com
-
-🌐 **Website:** [cyan.diamond.studio](https://cyandiamondstudio.github.io/website/)
-
----
-
-<div align="center">
-
-### Made with ❤️ by Cyan Diamond Studio
-
-![Footer Banner](https://capsule-render.vercel.app/api?type=waving&color=00FFFF&height=100&section=footer&animation=fadeIn&fontAlignY=50)
-
-</div>
-
----
-
-> 📝 **Note:** The project is actively being developed, so check back regularly for updates!
-
+**Developer:** Shayan Hajibagher  
+**Email:** shayan.contact.email@gmail.com  
+**Website:** [cyan.diamond.studio](https://cyandiamondstudio.github.io/website/)

@@ -1,0 +1,34 @@
+{
+  "language": "fa",
+  "stt_backend": "whisper",
+  "whisper_model": "turbo",
+  "languages": {
+    "en": {
+      "vosk_model_path": "vosk-model-small-en-us-0.15",
+      "model_path": "en_US-lessac-high.onnx",
+      "config_path": "en_US-lessac-high.onnx.json"
+    },
+    "fa": {
+      "vosk_model_path": "vosk-model-small-fa-rhasspy-0.15",
+      "model_path": "fa_IR-mana-medium.onnx",
+      "config_path": "fa_IR-mana-medium.onnx.json"
+    }
+  },
+  "api_url": "http://localhost:1234/v1/chat/completions",
+  "api_key": "",
+  "api_timeout": 120,
+  "max_retries": 3,
+  "sample_rate": 16000,
+  "chunk_size": 8192,
+  "max_tokens": 1500,
+  "temperature": 0.7,
+  "silence_threshold": 1.0,
+  "silence_duration": 1.0,
+  "synth": {
+    "volume": 1.1,
+    "length_scale": 1.05,
+    "noise_scale": 0.4,
+    "noise_w_scale": 0.5,
+    "normalize_audio": true
+  }
+}

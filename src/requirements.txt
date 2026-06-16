@@ -1,0 +1,11 @@
+faster-whisper
+vosk
+pyaudio
+requests
+piper-tts
+keyboard
+flask
+flask-socketio
+python-socketio
+flask-cors
+eventlet
