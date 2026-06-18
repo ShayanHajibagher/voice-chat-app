@@ -81,6 +81,101 @@ def update_config(stt_backend=None, whisper_model=None, lang=None, vosk_path=Non
     print(f"config.json updated")
 
 
+def auto_config(whisper_model_name="turbo"):
+    """Scan filesystem and rebuild config.json with only models that actually exist."""
+    lang_map = {"en": {}, "fa": {}}
+    for lang in lang_map:
+        info = lang_map[lang]
+        if lang == "en":
+            info["vosk"] = [d for d in os.listdir(".") if os.path.isdir(d) and "vosk-model" in d and "en" in d]
+            info["tts"] = [f for f in os.listdir(".") if f.endswith(".onnx") and f.startswith("en_US")]
+        else:
+            info["vosk"] = [d for d in os.listdir(".") if os.path.isdir(d) and "vosk-model" in d and "fa" in d]
+            info["tts"] = [f for f in os.listdir(".") if f.endswith(".onnx") and f.startswith("fa_IR")]
+
+    has_whisper = False
+    try:
+        from faster_whisper import WhisperModel
+        has_whisper = True
+    except ImportError:
+        pass
+
+    has_vosk_en = len(lang_map["en"]["vosk"]) > 0
+    has_vosk_fa = len(lang_map["fa"]["vosk"]) > 0
+    has_tts_en = len(lang_map["en"]["tts"]) > 0
+    has_tts_fa = len(lang_map["fa"]["tts"]) > 0
+
+    if not has_vosk_en and not has_vosk_fa and not has_whisper:
+        print("No STT models found. Config unchanged.")
+        return
+
+    languages = {}
+    if has_vosk_en or has_tts_en:
+        vosk_en = lang_map["en"]["vosk"][0] if has_vosk_en else ""
+        tts_file = ""
+        tts_cfg = ""
+        if has_tts_en:
+            tts_file = lang_map["en"]["tts"][0]
+            tts_cfg = tts_file + ".json"
+        languages["en"] = {
+            "vosk_model_path": vosk_en,
+            "model_path": tts_file,
+            "config_path": tts_cfg,
+        }
+    if has_vosk_fa or has_tts_fa:
+        vosk_fa = lang_map["fa"]["vosk"][0] if has_vosk_fa else ""
+        tts_file = ""
+        tts_cfg = ""
+        if has_tts_fa:
+            tts_file = lang_map["fa"]["tts"][0]
+            tts_cfg = tts_file + ".json"
+        languages["fa"] = {
+            "vosk_model_path": vosk_fa,
+            "model_path": tts_file,
+            "config_path": tts_cfg,
+        }
+
+    # Pick default language: prefer en if it has any model, else fa
+    default_lang = "en" if "en" in languages else "fa"
+
+    # Pick STT backend: prefer whisper if installed, else vosk if any model exists
+    stt = "whisper" if has_whisper else "vosk"
+    if stt == "vosk" and not has_vosk_en and not has_vosk_fa:
+        stt = "whisper"
+
+    cfg = {
+        "language": default_lang,
+        "stt_backend": stt,
+        "whisper_model": whisper_model_name,
+        "languages": languages,
+        "api_url": "http://localhost:1234/v1/chat/completions",
+        "api_key": "",
+        "api_timeout": 120,
+        "max_retries": 3,
+        "sample_rate": 16000,
+        "chunk_size": 8192,
+        "max_tokens": 1500,
+        "temperature": 0.7,
+        "silence_threshold": 1.0,
+        "silence_duration": 1.0,
+        "synth": {
+            "volume": 1.1,
+            "length_scale": 1.05,
+            "noise_scale": 0.4,
+            "noise_w_scale": 0.5,
+            "normalize_audio": True,
+        },
+    }
+
+    with open("config.json", "w", encoding="utf-8") as f:
+        json.dump(cfg, f, indent=2)
+    print("\nConfig auto-configured to match installed models:")
+    print(f"  Default language: {default_lang}")
+    print(f"  STT backend: {stt}")
+    for lang, info in languages.items():
+        print(f"  {lang}: vosk={info['vosk_model_path'] or '(none)'}, tts={info['model_path'] or '(none)'}")
+
+
 def download_vosk(model_name):
     base_url = f"https://alphacephei.com/vosk/models/{model_name}.zip"
     zip_fn = f"{model_name}.zip"
@@ -261,17 +356,11 @@ if __name__ == "__main__":
         else:
             tts_ok = download_tts(lang, tts_voice)
 
-        if vosk_ok and tts_ok:
-            update_config(
-                stt_backend="whisper" if use_whisper else "vosk",
-                whisper_model=whisper_model if use_whisper else None,
-                lang=lang,
-                vosk_path=vosk_selected,
-                tts_model=tts_file,
-                tts_config=tts_cfg,
-            )
-        else:
+        if not vosk_ok or not tts_ok:
             print(f"Some downloads failed for {lang}.")
+
+    # Auto-configure config.json to match whatever was actually downloaded
+    auto_config(whisper_model)
 
     print()
     print("=" * 60)
@@ -279,9 +368,6 @@ if __name__ == "__main__":
     print()
     if use_whisper:
         print(f"  STT:   faster-whisper ({whisper_model}) — cached, zero network on next run")
-    for lang in languages:
-        tts = "lessac-high" if lang == "en" else "mana-medium"
-        print(f"  TTS:   {lang.upper()} — {tts}")
     print()
     print("To start: start.bat  or  python cli.py")
     print("=" * 60)

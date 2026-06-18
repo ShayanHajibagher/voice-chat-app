@@ -167,17 +167,25 @@ class VoiceChat:
             )
             logger.info(f"Whisper model loaded: {model_name}")
         except ImportError:
-            logger.warning("faster-whisper not installed, falling back to Vosk")
-            print(f"{Colors.BRIGHT_YELLOW}faster-whisper not found, using Vosk STT{Colors.RESET}")
+            logger.warning("faster-whisper not installed")
+            print(f"{Colors.BRIGHT_YELLOW}faster-whisper not found{Colors.RESET}")
             self.stt_backend = "vosk"
             self.vosk_model = self._load_vosk_model()
+            if self.vosk_model is None:
+                print(f"{Colors.BRIGHT_RED}No STT backend available! Run download_model.py{Colors.RESET}")
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {e}")
-            print(f"{Colors.BRIGHT_RED}Whisper load failed: {e}, falling back to Vosk{Colors.RESET}")
+            print(f"{Colors.BRIGHT_RED}Whisper load failed: {e}{Colors.RESET}")
             self.stt_backend = "vosk"
             self.vosk_model = self._load_vosk_model()
+            if self.vosk_model is None:
+                print(f"{Colors.BRIGHT_RED}No STT backend available! Run download_model.py{Colors.RESET}")
 
-    def _load_vosk_model(self) -> vosk.Model:
+    def _load_vosk_model(self):
+        if not os.path.exists(self.config.vosk_model_path):
+            logger.warning(f"Vosk model not found: {self.config.vosk_model_path}")
+            print(f"Vosk model not found: {self.config.vosk_model_path}")
+            return None
         try:
             vosk.SetLogLevel(0)
             model = vosk.Model(self.config.vosk_model_path)
@@ -185,16 +193,20 @@ class VoiceChat:
             return model
         except Exception as e:
             logger.error(f"Failed to load Vosk model: {e}")
-            raise
+            return None
 
-    def _load_tts_model(self) -> PiperVoice:
+    def _load_tts_model(self):
+        if not os.path.exists(self.config.model_path):
+            logger.warning(f"TTS model not found: {self.config.model_path}")
+            print(f"TTS model not found: {self.config.model_path}")
+            return None
         try:
             voice = PiperVoice.load(self.config.model_path, self.config.config_path)
             logger.info(f"TTS model loaded: {self.config.model_path}")
             return voice
         except Exception as e:
             logger.error(f"Failed to load TTS model: {e}")
-            raise
+            return None
 
     def _create_synth_config(self) -> SynthesisConfig:
         return SynthesisConfig(
@@ -415,6 +427,9 @@ class VoiceChat:
             return ""
 
     def _transcribe_vosk(self, audio_bytes: bytes) -> str:
+        if self.vosk_model is None:
+            logger.error("Vosk model not loaded, cannot transcribe")
+            return ""
         try:
             recognizer = vosk.KaldiRecognizer(self.vosk_model, 16000)
             if recognizer.AcceptWaveform(audio_bytes):
@@ -448,6 +463,9 @@ class VoiceChat:
         return text.strip()
 
     def synthesize(self, text: str) -> Optional[bytes]:
+        if self.voice is None:
+            logger.warning("TTS voice not loaded, skipping synthesis")
+            return None
         cleaned = self.clean_text_for_tts(text)
         logger.info(f"TTS synthesize: {cleaned[:80]}...")
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:

@@ -1,17 +1,12 @@
 {
-  "language": "fa",
-  "stt_backend": "whisper",
+  "language": "en",
+  "stt_backend": "vosk",
   "whisper_model": "turbo",
   "languages": {
     "en": {
       "vosk_model_path": "vosk-model-small-en-us-0.15",
-      "model_path": "en_US-lessac-high.onnx",
-      "config_path": "en_US-lessac-high.onnx.json"
-    },
-    "fa": {
-      "vosk_model_path": "vosk-model-small-fa-rhasspy-0.15",
-      "model_path": "fa_IR-mana-medium.onnx",
-      "config_path": "fa_IR-mana-medium.onnx.json"
+      "model_path": "en_US-ryan-high.onnx",
+      "config_path": "en_US-ryan-high.onnx.json"
     }
   },
   "api_url": "http://localhost:1234/v1/chat/completions",
