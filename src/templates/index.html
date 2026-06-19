@@ -4,92 +4,212 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Voice Chat</title>
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎤</text></svg>">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="app" id="app">
+    <!-- Login Overlay -->
+    <div class="auth-overlay" id="auth-overlay">
+        <div class="auth-modal">
+            <div class="auth-logo">
+                <span class="logo-icon">&#x25C7;</span>
+                <span class="logo-text">Voice AI</span>
+            </div>
+            <p class="auth-subtitle" id="auth-subtitle">Sign in to your account</p>
+
+            <!-- Login Form -->
+            <div class="auth-form" id="login-form">
+                <div class="auth-field">
+                    <label>Username</label>
+                    <input type="text" id="login-username" class="auth-input" placeholder="Enter username" autocomplete="username">
+                </div>
+                <div class="auth-field">
+                    <label>Password</label>
+                    <input type="password" id="login-password" class="auth-input" placeholder="Enter password" autocomplete="current-password">
+                </div>
+                <div class="auth-error" id="login-error"></div>
+                <button class="auth-btn" onclick="doLogin()" id="login-btn">Sign In</button>
+                <p class="auth-switch">
+                    Don't have an account? <a href="#" onclick="showSignup()">Create one</a>
+                </p>
+            </div>
+
+            <!-- Signup Form -->
+            <div class="auth-form" id="signup-form" style="display:none">
+                <div class="auth-field">
+                    <label>Username</label>
+                    <input type="text" id="signup-username" class="auth-input" placeholder="Choose a username" autocomplete="username">
+                </div>
+                <div class="auth-field">
+                    <label>Password</label>
+                    <input type="password" id="signup-password" class="auth-input" placeholder="Choose a password (min 4 chars)" autocomplete="new-password">
+                </div>
+                <div class="auth-field">
+                    <label>Confirm Password</label>
+                    <input type="password" id="signup-confirm" class="auth-input" placeholder="Confirm password">
+                </div>
+                <div class="auth-error" id="signup-error"></div>
+                <button class="auth-btn" onclick="doSignup()" id="signup-btn">Create Account</button>
+                <p class="auth-switch">
+                    Already have an account? <a href="#" onclick="showLogin()">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app" id="app" style="display:none">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
                     <span class="logo-icon">&#x25C7;</span>
                     <span class="logo-text">Voice AI</span>
                 </div>
+                <button class="icon-btn sidebar-close" onclick="toggleSidebar()">&times;</button>
             </div>
+
+            <div class="sidebar-search">
+                <input type="text" class="search-input" id="sidebar-search" placeholder="Search conversations..." oninput="searchConversations(this.value)">
+            </div>
+
             <nav class="sidebar-nav">
                 <button class="nav-btn active" data-view="chat" onclick="switchView('chat')">
                     <span class="nav-icon">&#x1F4AC;</span>
                     <span class="nav-label">Chat</span>
                 </button>
+                <button class="nav-btn" data-view="conversations" onclick="switchView('conversations')">
+                    <span class="nav-icon">&#x1F4C2;</span>
+                    <span class="nav-label">Sessions</span>
+                </button>
+                <button class="nav-btn" data-view="memory" onclick="switchView('memory')">
+                    <span class="nav-icon">&#x1F9E0;</span>
+                    <span class="nav-label">Memory</span>
+                </button>
                 <button class="nav-btn" data-view="settings" onclick="switchView('settings')">
                     <span class="nav-icon">&#x2699;</span>
                     <span class="nav-label">Settings</span>
+                </button>
+                <button class="nav-btn" data-view="diagnostics" onclick="switchView('diagnostics')">
+                    <span class="nav-icon">&#x1F52C;</span>
+                    <span class="nav-label">Diagnostics</span>
                 </button>
                 <button class="nav-btn" data-view="stats" onclick="switchView('stats')">
                     <span class="nav-icon">&#x1F4CA;</span>
                     <span class="nav-label">Stats</span>
                 </button>
             </nav>
+
+            <div class="sidebar-sessions" id="session-list">
+                <div class="sidebar-sessions-header">Conversations</div>
+            </div>
+
             <div class="sidebar-footer">
                 <div class="connection-status" id="connection-status">
                     <span class="dot" id="status-dot"></span>
                     <span id="status-text">Connecting...</span>
                 </div>
+                <div class="user-info">
+                    <span class="user-badge" id="user-badge"></span>
+                    <button class="icon-btn logout-btn" onclick="doLogout()" title="Sign out">&#x2192;</button>
+                </div>
                 <div class="backend-badge" id="backend-badge">whisper</div>
             </div>
         </aside>
 
+        <!-- Mobile Hamburger -->
+        <button class="hamburger" onclick="toggleSidebar()" id="hamburger">&#x2630;</button>
+
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Chat View -->
+
+            <!-- CHAT VIEW -->
             <div class="view active" id="view-chat">
                 <header class="chat-header">
-                    <h2>Conversation</h2>
+                    <h2><span id="chat-title">Conversation</span> <span class="session-id" id="session-id-badge"></span></h2>
                     <div class="header-actions">
-                        <button class="icon-btn" onclick="copyLastResponse()" title="Copy last AI response">
-                            &#x1F4CB;
-                        </button>
-                        <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
-                            <span id="theme-icon">&#x1F319;</span>
-                        </button>
+                        <button class="icon-btn" onclick="copyLastResponse()" title="Copy last AI response">&#x1F4CB;</button>
+                        <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme"><span id="theme-icon">&#x1F319;</span></button>
                         <div class="dropdown">
                             <button class="icon-btn dropdown-btn" title="Export">&#x1F4E4;</button>
                             <div class="dropdown-menu">
                                 <button onclick="exportJSON()">Export as JSON</button>
                                 <button onclick="exportText()">Export as Text</button>
+                                <button onclick="exportMarkdown()">Export as Markdown</button>
                                 <button onclick="saveConversation()">Save to Server</button>
                             </div>
                         </div>
-                        <button class="icon-btn" onclick="clearConversation()" title="Clear conversation">
-                            &#x1F5D1;
-                        </button>
+                        <button class="icon-btn" onclick="newConversation()" title="New conversation">&#x2795;</button>
                     </div>
                 </header>
+
                 <div class="messages" id="messages">
-                    <div class="empty-state">
+                    <div class="empty-state" id="empty-state">
                         <div class="empty-icon">&#x1F3A4;</div>
                         <h3>Ready to talk</h3>
-                        <p>Press the mic button and start speaking</p>
+                        <p>Press the mic button or type a message to start</p>
                     </div>
                 </div>
+
                 <div class="input-area">
                     <div class="waveform-container" id="waveform-container" style="display:none">
                         <canvas id="waveform" width="400" height="60"></canvas>
+                        <div class="recording-timer" id="recording-timer">0:00</div>
                     </div>
                     <div class="input-controls">
+                        <div class="text-input-wrapper">
+                            <textarea class="text-input" id="text-input" placeholder="Type a message..." rows="1" onkeydown="onTextKeydown(event)"></textarea>
+                            <button class="send-btn" id="send-btn" onclick="sendTextMessage()">&#x27A4;</button>
+                        </div>
                         <button class="mic-btn" id="record-btn" onclick="toggleRecording()">
                             <span class="mic-icon">&#x1F3A4;</span>
                         </button>
-                        <span class="hint">Press Space or click to speak</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Settings View -->
-            <div class="view" id="view-settings">
+            <!-- CONVERSATIONS VIEW -->
+            <div class="view" id="view-conversations">
+                <header class="chat-header"><h2>Conversation Sessions</h2></header>
+                <div class="conversations-content">
+                    <button class="setting-btn full" onclick="newConversation()">+ New Conversation</button>
+                    <div class="conversation-list" id="conversation-list"></div>
+                </div>
+            </div>
+
+            <!-- MEMORY VIEW -->
+            <div class="view" id="view-memory">
                 <header class="chat-header">
-                    <h2>Settings</h2>
+                    <h2>Memory</h2>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="refreshMemory()" title="Refresh">&#x1F504;</button>
+                    </div>
                 </header>
+                <div class="memory-content">
+                    <div class="memory-tabs">
+                        <button class="memory-tab active" data-target="memory" onclick="switchMemoryTab('memory')">MEMORY.md</button>
+                        <button class="memory-tab" data-target="user" onclick="switchMemoryTab('user')">USER.md</button>
+                        <button class="memory-tab" data-target="soul" onclick="switchMemoryTab('soul')">SOUL.md</button>
+                    </div>
+                    <div class="memory-usage-bar"><div class="usage-fill" id="memory-usage-fill" style="width:0%"></div></div>
+                    <div class="memory-usage-text" id="memory-usage-text">0 / 0 chars (0%)</div>
+                    <div class="memory-entries" id="memory-entries"></div>
+                    <div class="memory-raw-editor" id="memory-raw-editor" style="display:none">
+                        <textarea class="memory-textarea" id="memory-raw-text" rows="10"></textarea>
+                        <button class="setting-btn full" onclick="saveMemoryRaw()">Save Raw</button>
+                    </div>
+                    <div class="memory-add-form">
+                        <h3>Add Entry</h3>
+                        <textarea class="memory-textarea" id="memory-new-entry" rows="3" placeholder="New memory entry..."></textarea>
+                        <button class="setting-btn full" onclick="addMemoryEntry()">Add Entry</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS VIEW -->
+            <div class="view" id="view-settings">
+                <header class="chat-header"><h2>Settings</h2></header>
                 <div class="settings-content">
                     <div class="setting-group">
                         <h3>AI Backend</h3>
@@ -101,33 +221,33 @@
                             <label>API Key</label>
                             <input type="password" id="api-key" class="setting-input" placeholder="Optional" onchange="setApiKey(this.value)">
                         </div>
+                        <div class="setting-row">
+                            <label>Model</label>
+                            <input type="text" id="api-model" class="setting-input" placeholder="local-model" onchange="setApiModel(this.value)">
+                        </div>
                     </div>
-
                     <div class="setting-group">
                         <h3>Speech Recognition (STT)</h3>
                         <div class="setting-row">
                             <label>Backend</label>
                             <select id="stt-backend" class="setting-select" onchange="setSttBackend(this.value)">
-                                <option value="whisper">faster-whisper (recommended)</option>
-                                <option value="vosk">Vosk (lightweight)</option>
+                                <option value="whisper">faster-whisper</option>
+                                <option value="vosk">Vosk</option>
                             </select>
                         </div>
                         <div class="setting-row">
                             <label>Model</label>
                             <select id="whisper-model" class="setting-select" onchange="setWhisperModel(this.value)">
-                                <option value="turbo">turbo (~800MB) [recommended]</option>
-                                <option value="large-v3">large-v3 (~3GB) - best accuracy</option>
-                                <option value="medium">medium (~1.5GB)</option>
-                                <option value="small">small (~500MB)</option>
-                                <option value="base">base (~150MB)</option>
-                                <option value="tiny">tiny (~75MB) - fastest</option>
+                                <option value="turbo">turbo</option>
+                                <option value="large-v3">large-v3</option>
+                                <option value="medium">medium</option>
+                                <option value="small">small</option>
+                                <option value="base">base</option>
+                                <option value="tiny">tiny</option>
                             </select>
                         </div>
-                        <div class="setting-info">
-                            <p class="setting-desc">Changes to STT backend or model require a restart.</p>
-                        </div>
+                        <div class="setting-desc">Changes require restart.</div>
                     </div>
-
                     <div class="setting-group">
                         <h3>Language</h3>
                         <div class="setting-row">
@@ -148,13 +268,12 @@
                             <span class="setting-value" id="speed-value">1.00</span>
                         </div>
                     </div>
-
                     <div class="setting-group">
                         <h3>TTS Voice</h3>
                         <div class="setting-row">
                             <label>English</label>
                             <select id="tts-voice-en" class="setting-select" onchange="setTtsVoice('en', this.value)">
-                                <option value="en_US-lessac-high">lessac-high (best)</option>
+                                <option value="en_US-lessac-high">lessac-high</option>
                                 <option value="en_US-amy-medium">amy-medium</option>
                                 <option value="en_US-ryan-high">ryan-high</option>
                             </select>
@@ -162,35 +281,50 @@
                         <div class="setting-row">
                             <label>Persian</label>
                             <select id="tts-voice-fa" class="setting-select" onchange="setTtsVoice('fa', this.value)">
-                                <option value="fa_IR-mana-medium">mana-medium (best)</option>
+                                <option value="fa_IR-mana-medium">mana-medium</option>
                                 <option value="fa_IR-amir-medium">amir-medium</option>
                             </select>
                         </div>
                     </div>
-
+                    <div class="setting-group">
+                        <h3>System Prompt</h3>
+                        <textarea id="system-prompt-editor" class="memory-textarea" rows="6" placeholder="Custom instructions..." onchange="setSystemPrompt(this.value)"></textarea>
+                        <div class="setting-desc">Extra instructions appended to the system prompt.</div>
+                    </div>
                     <div class="setting-group">
                         <h3>Models</h3>
                         <button class="setting-btn full" onclick="downloadModels()">&#x1F4E5; Download / Update Models</button>
-                        <div class="setting-info">
-                            <p class="setting-desc">Opens a separate window to download or update speech and TTS models.</p>
-                        </div>
                     </div>
-
                     <div class="setting-group">
                         <h3>Appearance</h3>
-                        <button class="setting-btn full" onclick="toggleTheme()">
-                            <span id="theme-label">Switch to Light Mode</span>
-                        </button>
+                        <button class="setting-btn full" onclick="toggleTheme()"><span id="theme-label">Switch to Light Mode</span></button>
+                    </div>
+                    <div class="setting-group danger-zone">
+                        <h3>Danger Zone</h3>
+                        <p class="setting-desc">Permanently delete your account and all data. This cannot be undone.</p>
+                        <button class="setting-btn full danger-btn" onclick="deleteAccount()">Delete Account</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Stats View -->
-            <div class="view" id="view-stats">
+            <!-- DIAGNOSTICS VIEW -->
+            <div class="view" id="view-diagnostics">
                 <header class="chat-header">
-                    <h2>Session Stats</h2>
+                    <h2>Diagnostics</h2>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="runDiagnostics()" title="Run diagnostics">&#x1F504;</button>
+                    </div>
                 </header>
-                <div class="stats-content">
+                <div class="diagnostics-content" id="diagnostics-content">
+                    <button class="setting-btn full" onclick="runDiagnostics()">&#x1F52C; Run Diagnostics</button>
+                    <div class="diag-results" id="diag-results"></div>
+                </div>
+            </div>
+
+            <!-- STATS VIEW -->
+            <div class="view" id="view-stats">
+                <header class="chat-header"><h2>Session Stats</h2></header>
+                <div class="stats-content" id="stats-content">
                     <div class="stat-card">
                         <div class="stat-number" id="stat-user-msgs">0</div>
                         <div class="stat-label">Your Messages</div>
@@ -209,11 +343,12 @@
                     </div>
                 </div>
             </div>
+
         </main>
     </div>
 
-    <!-- Notification -->
-    <div class="toast" id="toast"></div>
+    <!-- Notifications -->
+    <div class="notifications" id="notifications"></div>
 
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

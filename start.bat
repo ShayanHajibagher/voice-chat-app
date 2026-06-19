@@ -1,5 +1,5 @@
 @echo off
-title AI Voice Chat
+title AI Voice Chat v7
 cd /d "%~dp0"
 
 if not exist ".venv" (
@@ -11,7 +11,7 @@ if not exist ".venv" (
 
 call .venv\Scripts\activate.bat
 cd src
-python cli.py
+python web_server.py
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] Application exited with an error.

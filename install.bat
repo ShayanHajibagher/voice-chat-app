@@ -1,5 +1,5 @@
 @echo off
-title AI Voice Chat - Installer
+title AI Voice Chat v7 - Installer
 cd /d "%~dp0"
 
 echo ========================================

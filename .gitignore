@@ -14,10 +14,11 @@ src/*.so
 src/*.onnx
 src/*.onnx.json
 src/vosk-model-*/
+*.zip
 
-# User data
-src/conversation*.json
-src/user_settings.json
+# User data — contains encrypted conversations, keys, accounts
+src/memories/
+src/memories/*
 
 # Logs
 src/*.log
